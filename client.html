@@ -1,0 +1,96 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Socket Demo</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Enter message" autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+    <ul id="messages"></ul>
+
+
+    <script>
+        const socket = io();
+
+        document.getElementById('message-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = document.getElementById('message-input').value;
+            socket.emit('newMessage', {
+                from: 'User',
+                text: message,
+                createdAt: Date.now()
+            });
+            document.getElementById('message-input').value = '';
+        });
+
+        initializeSocketListeners();
+        getLocation();
+
+
+        function initializeSocketListeners() {
+            socket.on('connect', () => {
+                console.log('Connected to server');
+            });
+
+            socket.on('newMessage', (message) => {
+                renderMessage(message);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+            });
+
+            socket.on('error', (error) => {
+                console.error('Socket error:', error);
+            });
+
+            socket.on('locationMessage', (coords) => {
+                renderLocationMessage(coords);
+            })
+
+        }
+
+        function renderMessage(message) {
+            const li = document.createElement('li');
+            li.textContent = `${message.from}: ${message.text}`;
+            document.getElementById('messages').appendChild(li);
+        }
+
+        function getLocation() {
+            if (!navigator.geolocation) {
+                return alert('Geolocation not supported by your browser');
+            }
+
+            navigator.geolocation.watchPosition((position) => {
+                const coords = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                socket.emit('locationMessage', coords);
+            }, () => {
+                alert('Unable to fetch location');
+            });
+        }
+
+
+        function renderLocationMessage(coords) {
+            const {latitude, longitude, time, url} = coords;
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('target', '_blank');
+            a.textContent = `User's location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)} -- time: ${new Date(time).toLocaleString()}`;
+            li.appendChild(a);
+            document.getElementById('messages').appendChild(li);
+        }
+
+    </script>
+</body>
+
+</html>
