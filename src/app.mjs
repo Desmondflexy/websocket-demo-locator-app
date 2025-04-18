@@ -9,14 +9,12 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const server = createServer(app);
+app.use(express.static(join(__dirname, "../public")));
 
-app.get("/", (_, res) => {
-    res.sendFile(join(__dirname, 'client.html'));
-});
-
-connectWebSocket(server);
 
 const port = 3000;
 server.listen(port, () => {
     console.log(`Server is up on port ${port}`);
 });
+
+connectWebSocket(server);
