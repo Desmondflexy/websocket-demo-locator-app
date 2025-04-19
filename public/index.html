@@ -4,23 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Socket Demo</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <script src="socket.io/socket.io.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h2>A simple web socket demo project</h2>
-    <form>
-        <input placeholder="Choose username" id="username-input">
-        <button>Enter</button>
-    </form>
-    <form>
-        <input type="text" id="message-input" placeholder="Enter message" autocomplete="off">
-        <button type="submit">Send</button>
-    </form>
-    <p id="typing"></p>
-    <ul id="messages"></ul>
+    <div class="app-wrapper">
+        <div class="chat-container">
+            <h2>A Simple WebSocket Chat</h2>
+
+            <form id="login-form">
+                <input placeholder="Your username" id="username-input" required>
+                <input placeholder="Recipient username" id="recipient-input" required>
+                <button type="submit">Enter Chat</button>
+            </form>
+
+            <p id="info"></p>
+            <ul id="messages"></ul>
+        </div>
+
+        <form id="message-form">
+            <input type="text" id="message-input" placeholder="Type a message" autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
 
     <audio id="receive-sound" src="sounds/receive.wav" preload="auto"></audio>
 </body>

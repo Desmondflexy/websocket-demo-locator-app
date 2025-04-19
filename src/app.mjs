@@ -11,10 +11,7 @@ const app = express();
 const server = createServer(app);
 app.use(express.static(join(__dirname, "../public")));
 
-
 const port = 3000;
-server.listen(port, () => {
-    console.log(`Server is up on port ${port}`);
-});
+server.listen(port, () => console.log(`Server is up on port ${port}`));
 
 connectWebSocket(server);
