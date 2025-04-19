@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', main);
-let typingTimeout;
-
 
 function main() {
     localStorage.removeItem("username");
@@ -20,17 +18,16 @@ function main() {
 
         localStorage.setItem("username", username);
         usernameInput.disabled = true;
-        [messageFormSubmit, messageInput].forEach(elem => elem.disabled = false);
+        messageInput.disabled = false;
         messageInput.focus();
     });
 
     messageForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const message = messageInput.value;
-        const username = localStorage.getItem("username");
-
         if (!message) return;
 
+        const username = localStorage.getItem("username");
         socket.emit('newMessage', {
             from: username,
             text: message,
@@ -43,6 +40,9 @@ function main() {
         const username = localStorage.getItem("username");
         const message = `${username} is typing...`;
         socket.emit("typing", message);
+
+        if (messageInput.value)
+            messageFormSubmit.disabled = false
     });
 }
 
@@ -54,7 +54,9 @@ function initializeSocketListeners(socket) {
 
     socket.on('typing', message => {
         showIsTypingMessage(message);
-    })
+    });
+
+    socket.on('receiveMessage', playReceiveSound);
 }
 
 
@@ -62,14 +64,25 @@ function renderMessage(message) {
     const li = document.createElement('li');
 
     const currentUser = localStorage.getItem("username");
-    li.className = message.from === currentUser ? 'my-message' : 'other-message';
+    const isMine = message.from === currentUser;
+    const displayName = isMine ? 'You' : message.from;
+    li.className = isMine ? 'my-message' : 'other-message';
 
-    li.textContent = `${message.from}: ${message.text}`;
-    // Append first so it's in the DOM
+    const time = new Date(message.createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    li.innerHTML = `
+        <div class="username">${displayName}</div>
+        <div class="message-bubble">
+            <div class="message-text">${message.text}</div>
+            <div class="timestamp">${time}</div>
+        </div>
+    `;
+
     const messagesList = document.getElementById('messages');
     messagesList.appendChild(li);
-
-    // Optional: Scroll to bottom when a new message arrives
     messagesList.scrollTop = messagesList.scrollHeight;
 }
 
@@ -85,4 +98,9 @@ function showIsTypingMessage(message) {
         typingPara.classList.remove("active");
         typingPara.textContent = "";
     }, 2000);
+}
+
+function playReceiveSound() {
+    const sound = document.getElementById('receive-sound');
+    sound.play();
 }

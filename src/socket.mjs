@@ -10,12 +10,12 @@ export function connectWebSocket(server) {
 
 
 function initializeSocketListeners(socket, io) {
-    socket.on('newMessage', (message) => {
-        // socket.broadcast.emit('newMessage', message);
-        io.emit("newMessage", message);
+    socket.on('newMessage', (data) => {
+        io.emit("newMessage", data);
+        socket.broadcast.emit('receiveMessage');
     });
 
     socket.on("typing", (message) => {
         socket.broadcast.emit('typing', message);
-    })
+    });
 }
